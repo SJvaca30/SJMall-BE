@@ -39,7 +39,7 @@ userController.createUser = async (req, res) => {
       message: "계정이 생성되었습니다.",
     });
   } catch (error) {
-    res.status(400).json({ status: "fail", message: error.message });
+    res.status(400).json({ status: "fail", error: error.message });
   }
 };
 
