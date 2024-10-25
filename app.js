@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false })); // URL 인코딩된 데이�
 app.use(bodyParser.json()); // req.body를 객체로 인식, 여기서 req.body란 클라이언트에서 보낸 데이터를 의미
 
 app.use("/api", indexRouter); // /api 경로로 들어오는 요청은 indexRouter에서 처리
-const mongoURI = process.env.LOCAL_DB_ADDRESS; // 로컬 데이터베이스 주소
+const mongoURI = process.env.MONGODB_URI_PROD; // 로컬 데이터베이스 주소
 
 mongoose
   .connect(mongoURI, { useNewUrlParser: true }) // 몽고DB 연결, Promise를 반환

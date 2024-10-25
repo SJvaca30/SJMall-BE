@@ -6,7 +6,7 @@ const userSchema = Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    level: { type: String, enum: ["customer", "admin"] },
+    level: { type: String, enum: ["customer", "admin"], default: "customer" },
   },
   { timestamps: true }
 );
