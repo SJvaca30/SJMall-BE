@@ -15,12 +15,12 @@ const productSchema = Schema(
   },
   { timestamps: true }
 );
-productSchema.methods.generateToken = function () {
-  const obj = this._doc;
+productSchema.methods.toJSON = function () {
+  const obj = this._doc; // _doc은 현재 mongoose 문서에서 모든 데이터를 담고있는 객체를 가리킴
   delete obj.__v;
-  delete obj.createdAt;
   delete obj.updatedAt;
-  return obj;
+  delete obj.createdAt;
+  return obj; // 위 불필요한조건들을 모두 제거하면 프론트엔드로 넘어가지않고 object를 리턴함
 };
 
 const Product = mongoose.model("Product", productSchema);
