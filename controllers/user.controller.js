@@ -43,4 +43,23 @@ userController.createUser = async (req, res) => {
   }
 };
 
+userController.getUser = async (req, res) => {
+  try {
+    const { userId } = req;
+    const user = await User.findById(userId);
+    if (user) {
+      return res.status(200).json({
+        status: "success",
+        user,
+      });
+    }
+    return res.status(400).json({
+      status: "fail",
+      error: "유저를 찾을 수 없습니다.(토큰 검증 실패)",
+    });
+  } catch (error) {
+    return res.status(400).json({ status: "error", error: error.message });
+  }
+};
+
 module.exports = userController;
