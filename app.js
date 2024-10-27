@@ -10,6 +10,15 @@ app.use(cors()); // 모든 출처에서 오는 요청을 허용
 app.use(bodyParser.urlencoded({ extended: false })); // URL 인코딩된 데이터를 파싱
 app.use(bodyParser.json()); // req.body를 객체로 인식, 여기서 req.body란 클라이언트에서 보낸 데이터를 의미
 
+// 테스트용 라우트
+app.get("/api/test", (req, res) => {
+  res.json({
+    status: "success",
+    message: "서버가 정상적으로 동작중입니다!",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.use("/api", indexRouter); // /api 경로로 들어오는 요청은 indexRouter에서 처리
 const mongoURI = process.env.MONGODB_URI_PROD; // 로컬 데이터베이스 주소
 
