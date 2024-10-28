@@ -6,7 +6,11 @@ require("dotenv").config(); // 환경 변수 로드
 const indexRouter = require("./routes/index");
 const app = express();
 
-app.use(cors()); // 모든 출처에서 오는 요청을 허용
+app.use(
+  cors({
+    origin: "*", // 모든 출처 허용 옵션. true 를 써도 된다.
+  })
+);
 app.use(bodyParser.urlencoded({ extended: false })); // URL 인코딩된 데이터를 파싱
 app.use(bodyParser.json()); // req.body를 객체로 인식, 여기서 req.body란 클라이언트에서 보낸 데이터를 의미
 
