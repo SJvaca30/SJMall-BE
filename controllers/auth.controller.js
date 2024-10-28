@@ -42,18 +42,26 @@ authController.authenticate = async (req, res, next) => {
       });
     }
     const token = tokenString.replace("Bearer ", "");
-    jwt.verify(token, JWT_SECRET_KEY, (error, payload) => {
-      if (error) {
-        return res.status(400).json({
-          status: "fail",
-          error: "토큰 jwt.verify에 실패했습니다.",
-        });
-      }
-      req.userId = payload._id;
+
+    // 1. jwt.verify 비동지 처리
+    // 2. 에러 로직 수정
+    const decoded = await new Promise((resolve, reject) => {
+      jwt.verify(token, JWT_SECRET_KEY, (error, decoded) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(decoded);
+        }
+      });
     });
+
+    req.userId = decoded._id;
     next(); // authController.authenticate 끝나고 userController.getUser 실행
   } catch (error) {
-    res.status(400).json({ status: "fail", error: error.message });
+    return res.status(400).json({
+      status: "fail",
+      error: "토큰이 유효하지 않습니다.",
+    });
   }
 };
 
