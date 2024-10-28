@@ -47,18 +47,20 @@ userController.getUser = async (req, res) => {
   try {
     const { userId } = req;
     const user = await User.findById(userId);
-    if (user) {
-      return res.status(200).json({
-        status: "success",
-        user,
+    if (!user) {
+      res.status(400).json({
+        status: "fail",
+        error: "유저를 찾을 수 없습니다.(토큰 검증 실패)",
       });
+      return; // 여기서 명시적으로 함수 종료
     }
-    return res.status(400).json({
-      status: "fail",
-      error: "유저를 찾을 수 없습니다.(토큰 검증 실패)",
+    
+    res.status(200).json({
+      status: "success",
+      user,
     });
   } catch (error) {
-    return res.status(400).json({ status: "error", error: error.message });
+    res.status(400).json({ status: "error", error: error.message });
   }
 };
 
