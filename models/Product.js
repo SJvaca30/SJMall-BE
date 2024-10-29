@@ -9,7 +9,7 @@ const productSchema = Schema(
     category: { type: Array, required: true },
     price: { type: Number, required: true },
     description: { type: String, required: true },
-    stock: { type: Number, required: true },
+    stock: { type: Object, required: true },
     status: { type: String, default: "active" }, // status란 상품 판매 상태, 2types: active, inactive
     isDeleted: { type: Boolean, default: false },
   },
