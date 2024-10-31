@@ -1,28 +1,23 @@
 const mongoose = require("mongoose");
-const User = require("./User");
-const Product = require("./Product");
-const Schema = mongoose.Schema;
 
-const cartSchema = Schema(
-  {
-    userId: { type: mongoose.ObjectId, ref: User },
-    items: [
-      {
-        productId: { type: mongoose.ObjectId, ref: Product },
-        size: { type: String, required: true },
-        quantity: { type: Number, default: 1, required: true },
-      },
-    ],
-  },
-  { timestamps: true }
-);
-cartSchema.methods.generateToken = function () {
-  const obj = this._doc;
-  delete obj.__v;
-  delete obj.createdAt;
-  delete obj.updatedAt;
-  return obj;
-};
+const cartSchema = new mongoose.Schema({
+    userId: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
+    items:[{
+        productId: {type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true},
+        size: {type: String, required: true},
+        qty: {type: Number, default: 1}
+    }]
+},{
+    timestamps: true
+});
+
+cartSchema.methods.toJSON = function() {
+    const obj = this._doc;
+    delete obj.__v;
+    delete obj.createdAt;
+    delete obj.updatedAt;
+    return obj;
+}
 
 const Cart = mongoose.model("Cart", cartSchema);
 

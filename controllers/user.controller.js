@@ -1,70 +1,99 @@
-const express = require("express");
-const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+
+const saltRounds = 10;
 
 const userController = {};
 
 userController.createUser = async (req, res) => {
-  try {
-    let { email, password, name, level } = req.body;
-    const user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({
-        status: "fail",
-        message: "이미 존재하는 이메일입니다.",
-      });
+    try{
+        const { name, email, password, level } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if(user){
+            throw new Error("Email already exists");
+        }
+
+        const salt = bcrypt.genSaltSync(saltRounds);
+        const hash = bcrypt.hashSync(password, salt);
+        
+        const newUser = new User({
+            email:email,
+            name:name,
+            password:hash,
+            level:level ? level : "customer"
+        });
+
+        await newUser.save();
+
+        res.status(200).json({
+            status: "ok",
+        });
+
+    }catch(err){
+        res.status(400).json({ 
+            status: "fail",
+            message: err.message 
+        });
     }
+}
 
-    const salt = await bcrypt.genSaltSync(10);
-    password = await bcrypt.hash(password, salt);
+userController.loginUser = async (req,res) => {
+    try{
+        const {email,password} = req.body;
 
-    const newUser = new User({
-      email,
-      password,
-      name,
-      level: level ? level : "customer",
-    });
-    await newUser.save();
+        const user = await User.findOne({
+            email:email
+        },"-__v -createdAt -updatedAt");
+        
+        if(user) {
 
-    // 아래처럼 작성하지 않는 이유는 await newUser.save(); 하기 전에 데이터 검증코드를 추가하거나 미들웨어(pre/post hooks)를 더 세밀하게 제어 가능하기 때문이다.
-    // const newUser = await User.create({
-    //   email,
-    //   password,
-    //   name,
-    //   level: level ? level : "customer",
-    // });
+            // bcrypt 이용해서 hash password 비교
+            const isMatch = await bcrypt.compareSync(password, user.password);
+            if(isMatch) {
+                const token = user.generateToken();
 
-    return res.status(200).json({
-      status: "success",
-      message: "계정이 생성되었습니다.",
-    });
-  } catch (error) {
-    res.status(400).json({ status: "fail", error: error.message });
-  }
-};
+                return res.status(200).json({
+                    status: "ok",
+                    user,
+                    token
+                });
+            }else {
+                throw new Error("Is not match password.");
+            }
+        }else {
+            throw new Error("Is not match email.");
+        }
 
-userController.getUser = async (req, res) => {
-  try {
-    const { userId } = req;
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(400).json({
-        status: "fail",
-        error: "유저를 찾을 수 없습니다.(토큰 검증 실패)",
-      });
+    }catch(err){
+        res.status(400).json({
+            status: "fail",
+            message: err.message
+        });
     }
+}
 
-    return res.status(200).json({
-      status: "success",
-      user,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      status: "error",
-      error: error.message,
-    });
-  }
-};
+userController.getUser = async (req,res) => {
+    try {
+        const {userId} = req;
+        const user = await User.findById(userId);
+
+        if(!user) {
+            throw new Error("can not find user");
+        }
+        
+        res.status(200).json({
+            status: "ok",
+            user
+        });
+
+    }catch(err) {
+        res.status(400).json({
+            status: "fail",
+            message: err.message
+        });
+    }
+}
 
 module.exports = userController;
